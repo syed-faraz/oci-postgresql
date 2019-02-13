@@ -1,4 +1,4 @@
-"# oci-postgresql" 
+# oci-postgresql
 simple is a Terraform module that will deploy PosgreSQL on OCI. Instructions on how to use it are below.
 
 ## Prerequisites

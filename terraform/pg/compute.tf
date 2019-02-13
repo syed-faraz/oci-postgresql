@@ -13,6 +13,6 @@ resource "oci_core_instance" "pg_vm" {
     assign_public_ip = true
   }
   metadata {
-    ssh_authorized_keys = "${file("~/.ssh/oci_id_rsa.pub")}"
+    ssh_authorized_keys = "${file("~/.oci/oci_api_key_public.pem")}"
   }
 }

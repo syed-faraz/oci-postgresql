@@ -1,5 +1,5 @@
 data "template_file" "postgresql" {
-  template = "${file("templates/postgresql.sh")}"
+  template = "${file("../templates/postgresql.sh")}"
 
   vars {
     password = "${local.password}"

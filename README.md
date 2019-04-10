@@ -1,4 +1,4 @@
-# oci-arangodb
+# oci-postgresql
 
 Terraform module for deploying a single node [PostgreSQL](https://www.postgresql.org/) instance.
   

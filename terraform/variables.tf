@@ -31,10 +31,10 @@ variable "images" {
   type = "map"
 
   default = {
-    eu-frankfurt-1 = "ocid1.image.oc1.eu-frankfurt-1.aaaaaaaa2n5z4nmkqjf27btkbdibflwvximz5i3rsz57c3gowckozrdshnua"
-    us-ashburn-1   = "ocid1.image.oc1.iad.aaaaaaaavxqdkuyamlnrdo3q7qa7q3tsd6vnyrxjy3nmdbpv7fs7um53zh5q"
-    us-phoenix-1   = "ocid1.image.oc1.phx.aaaaaaaapxvrtwbpgy3lchk2usn462ekarljwg4zou2acmundxlkzdty4bjq"
-    uk-london-1    = "ocid1.image.oc1.uk-london-1.aaaaaaaaaxnnrqke453ur5katouvfn2i6oweuwpixx6mm5e4nqtci7oztx5a"
-    ca-toronto-1   = "ocid1.image.oc1.ca-toronto-1.aaaaaaaaqopv4wgbh54jrqoa4bjpkng2y2npzoe2jaj5pdne37ljdxbbbdka"
+    eu-frankfurt-1 = "ocid1.image.oc1.eu-frankfurt-1.aaaaaaaaydd7mt37cpouxlq2zreiiy2xauebkcwv7g3nqwziisdjenc2sz5a"
+    us-ashburn-1   = "ocid1.image.oc1.iad.aaaaaaaajnvrzitemn2k5gfkfq2hwfs4bid577u2jbrzla42wxo2qc77gwxa"
+    us-phoenix-1   = "ocid1.image.oc1.phx.aaaaaaaa6fy4rewjwz2kanrc47fnei5xhfsrpmei2fwfepff3drzmsexznpq"
+    uk-london-1    = "ocid1.image.oc1.uk-london-1.aaaaaaaa3rebuz4fyupv2xgdsdhtoiu5aiunl7pb76hfqqevoutnxznjn5ua"
+    ca-toronto-1   = "ocid1.image.oc1.ca-toronto-1.aaaaaaaaq4fdhvuv5ylctfsjdvcfavcu233i4nkpw2zbd6bowolvi6uf3cwq"
   }
 }

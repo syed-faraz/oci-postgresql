@@ -1,7 +1,6 @@
-# oci-postgresql
+# oci-quickstart-postgresql
+These are Terraform modules that deploy [PostgreSQL](https://www.postgresql.org/) on [Oracle Cloud Infrastructure (OCI)](https://cloud.oracle.com/en_US/cloud-infrastructure).
 
-Terraform module for deploying a single node [PostgreSQL](https://www.postgresql.org/) instance.
-  
 ## Prerequisites
 First off you'll need to do some pre deploy setup.  That's all detailed [here](https://github.com/cloud-partners/oci-prerequisites).
 

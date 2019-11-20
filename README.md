@@ -2,12 +2,12 @@
 These are Terraform modules that deploy [PostgreSQL](https://www.postgresql.org/) on [Oracle Cloud Infrastructure (OCI)](https://cloud.oracle.com/en_US/cloud-infrastructure).
 
 ## Prerequisites
-First off you'll need to do some pre deploy setup.  That's all detailed [here](https://github.com/cloud-partners/oci-prerequisites).
+First off you'll need to do some pre deploy setup.  That's all detailed [here](https://github.com/oracle-quickstart/oci-prerequisites).
 
 ## Clone the Module
 Now, you'll want a local copy of this repo.  You can make that with the commands:
 
-    git clone https://github.com/oci-quickstart/oci-postgresql.git
+    git clone https://github.com/oracle-quickstart/oci-postgresql.git
     cd cd oci-postgresql/terraform
     ls
 
@@ -52,9 +52,7 @@ When the deployment is completed, it will show you the public IP of the instance
 Example:
 
 `PostgreSQL Password = VtalvcqK*0`
-
 `PostgreSQL Username = postgres`
-
 `PostgreSQL VM public IP = 129.213.27.121`
 
 ## View the instance in the Console

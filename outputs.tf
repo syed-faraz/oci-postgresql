@@ -1,9 +1,13 @@
 output "PostgreSQL_Master_VM_public_IP" {
-  value = [data.oci_core_vnic.postgresql_master_primaryvnic.public_ip_address]
+  value = data.oci_core_vnic.postgresql_master_primaryvnic.public_ip_address
 }
 
 output "PostgreSQL_HotStandby1_VM_public_IP" {
-  value = [data.oci_core_vnic.postgresql_hotstandby1_primaryvnic.*.public_ip_address]
+  value = element(data.oci_core_vnic.postgresql_hotstandby1_primaryvnic.*.public_ip_address,0)
+}
+
+output "PostgreSQL_HotStandby2_VM_public_IP" {
+  value = element(data.oci_core_vnic.postgresql_hotstandby2_primaryvnic.*.public_ip_address,0)
 }
 
 output "PostgreSQL_Username" {

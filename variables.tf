@@ -15,7 +15,7 @@ variable "postgresql_subnet_cidr" {
 }
 
 variable "postgresql_instance_shape" {
-  default = "VM.Standard2.2"
+  default = "VM.Standard2.1"
 }
 
 variable "instance_os" {
@@ -52,6 +52,14 @@ variable "postgresql_hotstandby1_fd" {
   default = "FAULT-DOMAIN-2"
 }
 
+variable "postgresql_hotstandby1_ad" {
+  default = ""
+}
+
+variable "postgresql_hotstandby1_shape" {
+  default = "VM.Standard2.1"
+}
+
 variable "postgresql_deploy_hotstandby2" {
   default = false
 }
@@ -59,3 +67,12 @@ variable "postgresql_deploy_hotstandby2" {
 variable "postgresql_hotstandby2_fd" {
   default = "FAULT-DOMAIN-3"
 }
+
+variable "postgresql_hotstandby2_ad" {
+  default = ""
+}
+
+variable "postgresql_hotstandby2_shape" {
+  default = "VM.Standard2.1"
+}
+

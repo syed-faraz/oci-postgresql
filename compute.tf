@@ -24,10 +24,10 @@ resource "oci_core_instance" "postgresql_master" {
 
 resource "oci_core_instance" "postgresql_hotstandby1" {
   count               = var.postgresql_deploy_hotstandby1 ? 1 : 0
-  availability_domain = var.availablity_domain_name
+  availability_domain = var.postgresql_hotstandby1_ad
   compartment_id      = var.compartment_ocid
   display_name        = "PostgreSQL_HotStandby1"
-  shape               = var.postgresql_instance_shape
+  shape               = var.postgresql_hotstandby1_shape
   fault_domain        = var.postgresql_hotstandby1_fd
 
   create_vnic_details {
@@ -49,10 +49,10 @@ resource "oci_core_instance" "postgresql_hotstandby1" {
 
 resource "oci_core_instance" "postgresql_hotstandby2" {
   count               = var.postgresql_deploy_hotstandby2 ? 1 : 0
-  availability_domain = var.availablity_domain_name
+  availability_domain = var.postgresql_hotstandby2_ad
   compartment_id      = var.compartment_ocid
   display_name        = "PostgreSQL_HotStandby2"
-  shape               = var.postgresql_instance_shape
+  shape               = var.postgresql_hotstandby2_shape
   fault_domain        = var.postgresql_hotstandby2_fd
 
   create_vnic_details {

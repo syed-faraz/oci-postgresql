@@ -1,0 +1,275 @@
+## Copyright © 2020, Oracle and/or its affiliates. 
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+
+    title: "Create three-node deployment of a High Available PostgreSQL database on Oracle Cloud Infrastructure Compute instances."
+    stackDescription: "Deploy typical three-node deployment of a High Available PostgreSQL database on Oracle Cloud Infrastructure Compute instances."
+    schemaVersion: 1.1.0
+    version: "20190404"
+    locale: "en"
+
+    variableGroups:
+    - title: General Configuration
+      visible: false
+      variables:
+      - tenancy_ocid
+      - region
+
+    - title: Required Configuration 
+      visible: true  
+      variables:
+      - compartment_ocid
+      - availablity_domain_name
+      - postgresql_version
+      - postgresql_password
+      - postgresql_deploy_hotstandby1
+      - postgresql_deploy_hotstandby2
+
+    - title: Kubernetes Clusters Configuration
+      visible: true
+      variables:
+      - postgresql_vcn_cidr
+      - postgresql_subnet_cidr
+      - postgresql_instance_shape
+      - instance_os
+      - linux_os_version
+      - postgresql_master_fd
+      - postgresql_replicat_username
+
+    - title: PostgreSQL HotStandby1
+      visible: 
+        and:
+          - postgresql_deploy_hotstandby1
+      variables:
+      - postgresql_hotstandby1_ad
+      - postgresql_hotstandby1_fd
+      - postgresql_hotstandby1_shape
+
+    - title: PostgreSQL HotStandby2
+      visible: 
+        and:
+          - postgresql_deploy_hotstandby2
+      variables:
+      - postgresql_hotstandby2_ad
+      - postgresql_hotstandby2_fd
+      - postgresql_hotstandby2_shape
+
+    variables:
+      
+      compartment_ocid:
+        type: oci:identity:compartment:id
+        required: true
+        visibile: true
+        title: Compartment
+        description: "Compartment where you want to create the solution resources"
+
+      region:
+        type: oci:identity:region:name
+        required: true
+        visibile: true
+        title: Region
+        description: "Region where you want to deploy the resources defined by this stack."
+
+      availablity_domain_name:
+        type: oci:identity:availabilitydomain:name
+        required: true
+        visibile: true
+        title: "Availability Domain for master PostgreSQL"
+        description: "Availability Domain to be chosen for master PostgreSQL."
+        dependsOn:
+          compartmentId: ${compartment_ocid}
+
+      postgresql_password:
+        type: password
+        required: true
+        visibile: true
+        title: "PostgreSQL Password"
+        description: "Type PostgreSQL Password."
+        minLength: 12
+        maxLength: 30
+        pattern: ^[A-Za-z][A-Za-z0-9_#\$]+$ 
+
+      postgresql_version:
+        type: enum
+        visible: true
+        required: true
+        title: "PostgreSQL Version"
+        description: "Choose PostgreSQL Version."
+        default: "13"
+        enum:
+          - "13"  
+          - "12"
+          - "11"
+          - "10"          
+          - "9.6" 
+
+      postgresql_deploy_hotstandby1:
+        required: true
+        visibile: true
+        type: boolean
+        default: true
+        title: "Deploy first PostgreSQL HotStandby?"
+        description: "Check the box to deploy first PostgreSQL HotStandby."
+
+      postgresql_deploy_hotstandby2:
+        required: true
+        visibile: true
+        type: boolean
+        default: true
+        title: "Deploy second PostgreSQL HotStandby?"
+        description: "Check the box to deploy second PostgreSQL HotStandby."
+
+      # Optional Configuration  
+
+      postgresql_vcn_cidr:
+        type: string
+        visible: true
+        required: false
+        pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+        title: "VCN CIDR"
+        description: "Choose VCN CIDR for your PostgreSQL deployments."
+        default: "10.1.0.0/16"
+
+      postgresql_subnet_cidr:
+        type: string
+        visible: true
+        required: false
+        pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+        title: "VCN CIDR"
+        description: "Choose Subnet CIDR for your PostgreSQL deployments."
+        default: "10.1.20.0/24"   
+      
+      postgresql_instance_shape:
+        type: oci:core:instanceshape:name
+        required: false
+        title: "Shape for PostgreSQL Master node"
+        description: "Choose shape for PostgreSQL Master node."
+        default: "VM.Standard2.1"
+        dependsOn:
+          compartmentId: ${compartment_ocid}      
+      
+      instance_os:
+        type: enum
+        required: false
+        title: "Instance OS"
+        description: "An Operating System that determines the operating system for the instance."
+        default: "Oracle Linux"
+        enum:
+          - "Oracle Linux"
+      
+      linux_os_version:
+        type: enum
+        required: false
+        title: "Instance OS version"
+        description: "An Operating System version that determines the operating system version for the instance."
+        default: "7.9"
+        enum: 
+          - "7.8"
+          - "7.9"
+
+      postgresql_master_fd:
+        type: enum
+        required: false
+        title: "PostgreSQL Master Fault Domain"
+        description: "Choose Fault Domain for PostgreSQL Master."
+        default: "FAULT-DOMAIN-1"
+        enum:
+          - "FAULT-DOMAIN-1"
+          - "FAULT-DOMAIN-2"  
+          - "FAULT-DOMAIN-3"
+
+      postgresql_replicat_username:
+        type: string
+        required: false
+        title: "PostgreSQL Replicat Username"
+        description: "Type PostgreSQL Replicat Username"
+
+      postgresql_hotstandby1_ad:
+        type: oci:identity:availabilitydomain:name
+        required: false
+        visibile: true
+        title: "AD for the first PostgreSQL HotStandby"
+        description: "Availability Domain for the first PostgreSQL HotStandby."
+        dependsOn:
+          compartmentId: ${compartment_ocid}
+
+      postgresql_hotstandby1_fd:
+        type: enum
+        required: false
+        title: "The first PostgreSQL HotStandby's Fault Domain"
+        description: "Choose Fault Domain for the first PostgreSQL HotStandby."
+        default: "FAULT-DOMAIN-1"
+        enum:
+          - "FAULT-DOMAIN-1"
+          - "FAULT-DOMAIN-2"  
+          - "FAULT-DOMAIN-3"
+
+      postgresql_hotstandby1_shape:
+        type: oci:core:instanceshape:name
+        required: false
+        title: "Shape for the first PostgreSQL HotStandby node"
+        description: "Choose shape for the first PostgreSQL HotStandby node."
+        default: "VM.Standard2.1"
+        dependsOn:
+          compartmentId: ${compartment_ocid}  
+
+      postgresql_hotstandby2_ad:
+        type: oci:identity:availabilitydomain:name
+        required: false
+        visibile: true
+        title: "AD for the second PostgreSQL HotStandby"
+        description: "Availability Domain for the second PostgreSQL HotStandby."
+        dependsOn:
+          compartmentId: ${compartment_ocid}
+
+      postgresql_hotstandby2_fd:
+        type: enum
+        required: false
+        title: "The second PostgreSQL HotStandby's Fault Domain"
+        description: "Choose Fault Domain for the second PostgreSQL HotStandby."
+        default: "FAULT-DOMAIN-1"
+        enum:
+          - "FAULT-DOMAIN-1"
+          - "FAULT-DOMAIN-2"  
+          - "FAULT-DOMAIN-3"
+
+      postgresql_hotstandby2_shape:
+        type: oci:core:instanceshape:name
+        required: false
+        title: "Shape for the second PostgreSQL HotStandby node"
+        description: "Choose shape for the second PostgreSQL HotStandby node."
+        default: "VM.Standard2.1"
+        dependsOn:
+          compartmentId: ${compartment_ocid}  
+
+    outputs:
+
+      generated_ssh_private_key:
+        title: "Generated SSH Private Key"
+        displayText: "Generated SSH Private Key"
+        type: copyableString
+        visible: true
+
+      PostgreSQL_Master_VM_public_IP:
+        title: "PostgreSQL Master VM public IP"
+        displayText: "PostgreSQL Master VM public IP"
+        type: string
+        visible: true
+
+      PostgreSQL_HotStandby1_VM_public_IP:
+        title: "PostgreSQL HotStandby1 VM public IP"
+        displayText: "PostgreSQL HotStandby1 VM public IP"
+        type: string
+        visible: true
+
+      PostgreSQL_HotStandby2_VM_public_IP:
+        title: "PostgreSQL HotStandby2 VM public IP"
+        displayText: "PostgreSQL HotStandby2 VM public IP"
+        type: string
+        visible: true
+
+      PostgreSQL_Username:
+        title: "PostgreSQL Username"
+        displayText: "PostgreSQL Username"
+        type: string
+        visible: true
+

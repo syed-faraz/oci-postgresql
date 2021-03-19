@@ -197,7 +197,7 @@
         required: false
         title: "The first PostgreSQL HotStandby's Fault Domain"
         description: "Choose Fault Domain for the first PostgreSQL HotStandby."
-        default: "FAULT-DOMAIN-1"
+        default: "FAULT-DOMAIN-2"
         enum:
           - "FAULT-DOMAIN-1"
           - "FAULT-DOMAIN-2"  
@@ -226,7 +226,7 @@
         required: false
         title: "The second PostgreSQL HotStandby's Fault Domain"
         description: "Choose Fault Domain for the second PostgreSQL HotStandby."
-        default: "FAULT-DOMAIN-1"
+        default: "FAULT-DOMAIN-3"
         enum:
           - "FAULT-DOMAIN-1"
           - "FAULT-DOMAIN-2"  

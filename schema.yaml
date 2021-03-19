@@ -24,7 +24,7 @@
       - postgresql_deploy_hotstandby1
       - postgresql_deploy_hotstandby2
 
-    - title: Kubernetes Clusters Configuration
+    - title: PostgreSQL Master Configuration
       visible: true
       variables:
       - postgresql_vcn_cidr
@@ -35,7 +35,7 @@
       - postgresql_master_fd
       - postgresql_replicat_username
 
-    - title: PostgreSQL HotStandby1
+    - title: PostgreSQL HotStandby1 Configuration
       visible: 
         and:
           - postgresql_deploy_hotstandby1
@@ -44,7 +44,7 @@
       - postgresql_hotstandby1_fd
       - postgresql_hotstandby1_shape
 
-    - title: PostgreSQL HotStandby2
+    - title: PostgreSQL HotStandby2 Configuration
       visible: 
         and:
           - postgresql_deploy_hotstandby2

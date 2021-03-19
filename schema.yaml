@@ -185,7 +185,7 @@
 
       postgresql_hotstandby1_ad:
         type: oci:identity:availabilitydomain:name
-        required: false
+        required: true
         visibile: true
         title: "AD for the first PostgreSQL HotStandby"
         description: "Availability Domain for the first PostgreSQL HotStandby."
@@ -214,7 +214,7 @@
 
       postgresql_hotstandby2_ad:
         type: oci:identity:availabilitydomain:name
-        required: false
+        required: true
         visibile: true
         title: "AD for the second PostgreSQL HotStandby"
         description: "Availability Domain for the second PostgreSQL HotStandby."

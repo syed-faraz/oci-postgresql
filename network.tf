@@ -6,7 +6,6 @@ resource "oci_core_virtual_network" "postgresql_vcn" {
 }
 
 resource "oci_core_subnet" "postgresql_subnet" {
-  availability_domain = var.availablity_domain_name
   cidr_block          = var.postgresql_subnet_cidr
   display_name        = "PostgreSQLSubnet"
   dns_label           = "postgressubnet"

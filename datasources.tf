@@ -17,7 +17,7 @@ data "oci_core_vnic" "postgresql_master_primaryvnic" {
 
 data "oci_core_vnic_attachments" "postgresql_hotstandby1_primaryvnic_attach" {
   count               = var.postgresql_deploy_hotstandby1 ? 1 : 0
-  availability_domain = var.availablity_domain_name
+  availability_domain = var.postgresql_hotstandby1_ad
   compartment_id      = var.compartment_ocid
   instance_id         = oci_core_instance.postgresql_hotstandby1[count.index].id
 }
@@ -29,7 +29,7 @@ data "oci_core_vnic" "postgresql_hotstandby1_primaryvnic" {
 
 data "oci_core_vnic_attachments" "postgresql_hotstandby2_primaryvnic_attach" {
   count               = var.postgresql_deploy_hotstandby2 ? 1 : 0
-  availability_domain = var.availablity_domain_name
+  availability_domain = var.postgresql_hotstandby2_ad
   compartment_id      = var.compartment_ocid
   instance_id         = oci_core_instance.postgresql_hotstandby2[count.index].id
 }

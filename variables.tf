@@ -6,6 +6,11 @@ variable "region" {}
 variable "compartment_ocid" {}
 variable "availablity_domain_name" {}
 
+variable "release" {
+  description = "Reference Architecture Release (OCI Architecture Center)"
+  default     = "1.0"
+}
+
 variable "postgresql_vcn_cidr" {
   default = "10.1.0.0/16"
 }

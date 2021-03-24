@@ -20,6 +20,7 @@ resource "oci_core_instance" "postgresql_master" {
   metadata = {
     ssh_authorized_keys = tls_private_key.public_private_key_pair.public_key_openssh
   }
+  defined_tags = {"${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
 
 resource "oci_core_instance" "postgresql_hotstandby1" {
@@ -45,6 +46,7 @@ resource "oci_core_instance" "postgresql_hotstandby1" {
   metadata = {
     ssh_authorized_keys = tls_private_key.public_private_key_pair.public_key_openssh
   }
+  defined_tags = {"${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
 
 resource "oci_core_instance" "postgresql_hotstandby2" {
@@ -70,4 +72,5 @@ resource "oci_core_instance" "postgresql_hotstandby2" {
   metadata = {
     ssh_authorized_keys = tls_private_key.public_private_key_pair.public_key_openssh
   }
+  defined_tags = {"${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }

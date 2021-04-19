@@ -446,7 +446,7 @@ resource "null_resource" "postgresql_hotstandby1_setup" {
 
 resource "null_resource" "postgresql_hotstandby2_setup" {
   count      = var.postgresql_deploy_hotstandby2 ? 1 : 0
-  depends_on = [null_resource.postgresql_master_setup, null_resource.postgresql_hotstandby1_setup, null_resource.postgresql_hotstandby2_install_binaries]
+  depends_on = [null_resource.postgresql_master_setup2, null_resource.postgresql_hotstandby1_setup, null_resource.postgresql_hotstandby2_install_binaries]
 
   provisioner "remote-exec" {
     connection {

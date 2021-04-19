@@ -15,8 +15,7 @@
       - region
       - release
 
-    - title: Required Configuration 
-      visible: true  
+    - title: Required Configuration  
       variables:
       - compartment_ocid
       - availablity_domain_name
@@ -24,65 +23,110 @@
       - postgresql_password
       - postgresql_deploy_hotstandby1
       - postgresql_deploy_hotstandby2
+      - show_advanced
 
-    - title: PostgreSQL Master Configuration
-      visible: true
+    - title: Network & Compute Optional Configuration
+      visible: 
+          and:
+            - show_advanced
       variables:
       - postgresql_vcn_cidr
       - postgresql_subnet_cidr
-      - postgresql_instance_shape
+      - ssh_public_key
       - instance_os
       - linux_os_version
+
+    - title: PostgreSQL Master Optional Configuration
+      visible: 
+          and:
+            - show_advanced
+      variables:
       - postgresql_master_fd
+      - postgresql_instance_shape
+      - postgresql_instance_flex_shape_ocpus
+      - postgresql_instance_flex_shape_memory
       - postgresql_replicat_username
 
-    - title: PostgreSQL HotStandby1 Configuration
+    - title: PostgreSQL HotStandby1 Optional Configuration
       visible: 
-        and:
-          - postgresql_deploy_hotstandby1
+          and:
+            - show_advanced 
+            - postgresql_deploy_hotstandby1
       variables:
       - postgresql_hotstandby1_ad
       - postgresql_hotstandby1_fd
       - postgresql_hotstandby1_shape
+      - postgresql_hotstandby1_flex_shape_ocpus
+      - postgresql_hotstandby1_flex_shape_memory
 
     - title: PostgreSQL HotStandby2 Configuration
       visible: 
-        and:
-          - postgresql_deploy_hotstandby2
+          and:
+            - show_advanced
+            - postgresql_deploy_hotstandby2 
       variables:
       - postgresql_hotstandby2_ad
       - postgresql_hotstandby2_fd
       - postgresql_hotstandby2_shape
+      - postgresql_hotstandby2_flex_shape_ocpus
+      - postgresql_hotstandby2_flex_shape_memory
 
     variables:
+
+      show_advanced:
+        type: boolean
+        title: "Show advanced options?"
+        description: "Shows advanced options."
+        visible: true
+        default: false
+
+      postgresql_deploy_hotstandby1:
+        type: boolean
+        title: "Deploy first PostgreSQL HotStandby?"
+        description: "Check the box to deploy first PostgreSQL HotStandby."
+        visible: true
+        default: true
+
+      postgresql_deploy_hotstandby2:
+        type: boolean
+        title: "Deploy second PostgreSQL HotStandby?"
+        description: "Check the box to deploy second PostgreSQL HotStandby."
+        visible: true
+        default: true
       
       compartment_ocid:
         type: oci:identity:compartment:id
         required: true
-        visibile: true
+        visible: true
         title: Compartment
         description: "Compartment where you want to create the solution resources"
 
       region:
         type: oci:identity:region:name
         required: true
-        visibile: true
+        visible: true
         title: Region
         description: "Region where you want to deploy the resources defined by this stack."
 
       availablity_domain_name:
         type: oci:identity:availabilitydomain:name
         required: true
-        visibile: true
+        visible: true
         title: "Availability Domain for master PostgreSQL"
         description: "Availability Domain to be chosen for master PostgreSQL."
         dependsOn:
           compartmentId: ${compartment_ocid}
 
+      ssh_public_key:
+        type: oci:core:ssh:publickey
+        title: "Public SSH Key"
+        description: "Choose public SSH Key to be uploaded into compute instances."
+        required: false
+
       postgresql_password:
         type: password
         required: true
-        visibile: true
+        visible: true
         title: "PostgreSQL Password"
         description: "Type PostgreSQL Password."
         minLength: 12
@@ -102,22 +146,6 @@
           - "11"
           - "10"          
           - "9.6" 
-
-      postgresql_deploy_hotstandby1:
-        required: true
-        visibile: true
-        type: boolean
-        default: true
-        title: "Deploy first PostgreSQL HotStandby?"
-        description: "Check the box to deploy first PostgreSQL HotStandby."
-
-      postgresql_deploy_hotstandby2:
-        required: true
-        visibile: true
-        type: boolean
-        default: true
-        title: "Deploy second PostgreSQL HotStandby?"
-        description: "Check the box to deploy second PostgreSQL HotStandby."
 
       # Optional Configuration  
 
@@ -144,9 +172,48 @@
         required: false
         title: "Shape for PostgreSQL Master node"
         description: "Choose shape for PostgreSQL Master node."
-        default: "VM.Standard2.1"
+        default: "VM.Standard.E3.Flex"
         dependsOn:
-          compartmentId: ${compartment_ocid}      
+          compartmentId: ${compartment_ocid}  
+
+      postgresql_instance_flex_shape_ocpus:
+        type: number
+        required: false
+        minimum: 1
+        maximum: 128
+        multipleOf: 1
+        default: 1
+        title: "Flex Shape OCPUs"
+        description: "Choose number of OCPUs for Flex Shape."
+        visible:
+          and:
+            - or:
+              - eq:
+                - postgresql_instance_shape 
+                - "VM.Standard.E3.Flex"
+              - eq:
+                - postgresql_instance_shape 
+                - "VM.Standard.E4.Flex"
+
+      postgresql_instance_flex_shape_memory:
+        type: number
+        required: false
+        minimum: 1
+        maximum: 128
+        multipleOf: 1
+        default: 10
+        title: "Flex Shape Memory (GB)"
+        description: "Choose number GB for Flex Shape Memory."
+        visible:
+          and:
+            - or:
+              - eq:
+                - postgresql_instance_shape 
+                - "VM.Standard.E3.Flex"
+              - eq:
+                - postgresql_instance_shape
+                - "VM.Standard.E4.Flex"
+
       
       instance_os:
         type: enum
@@ -186,8 +253,7 @@
 
       postgresql_hotstandby1_ad:
         type: oci:identity:availabilitydomain:name
-        required: true
-        visibile: true
+        required: false
         title: "AD for the first PostgreSQL HotStandby"
         description: "Availability Domain for the first PostgreSQL HotStandby."
         dependsOn:
@@ -209,14 +275,51 @@
         required: false
         title: "Shape for the first PostgreSQL HotStandby node"
         description: "Choose shape for the first PostgreSQL HotStandby node."
-        default: "VM.Standard2.1"
+        default: "VM.Standard.E3.Flex"
         dependsOn:
-          compartmentId: ${compartment_ocid}  
+          compartmentId: ${compartment_ocid} 
+
+      postgresql_hotstandby1_flex_shape_ocpus:
+        type: number
+        required: false
+        minimum: 1
+        maximum: 128
+        multipleOf: 1
+        default: 1
+        title: "Flex Shape OCPUs"
+        description: "Choose number of OCPUs for Flex Shape."
+        visible:
+          and:
+            - or:
+              - eq:
+                - postgresql_hotstandby1_shape 
+                - "VM.Standard.E3.Flex"
+              - eq:
+                - postgresql_hotstandby1_shape 
+                - "VM.Standard.E4.Flex"
+
+      postgresql_hotstandby1_flex_shape_memory:
+        type: number
+        required: false
+        minimum: 1
+        maximum: 128
+        multipleOf: 1
+        default: 10
+        title: "Flex Shape Memory (GB)"
+        description: "Choose number GB for Flex Shape Memory."
+        visible:
+          and:
+            - or:
+              - eq:
+                - postgresql_hotstandby1_shape 
+                - "VM.Standard.E3.Flex"
+              - eq:
+                - postgresql_hotstandby1_shape
+                - "VM.Standard.E4.Flex"
 
       postgresql_hotstandby2_ad:
         type: oci:identity:availabilitydomain:name
-        required: true
-        visibile: true
+        required: false
         title: "AD for the second PostgreSQL HotStandby"
         description: "Availability Domain for the second PostgreSQL HotStandby."
         dependsOn:
@@ -238,9 +341,48 @@
         required: false
         title: "Shape for the second PostgreSQL HotStandby node"
         description: "Choose shape for the second PostgreSQL HotStandby node."
-        default: "VM.Standard2.1"
+        default: "VM.Standard.E3.Flex"
         dependsOn:
-          compartmentId: ${compartment_ocid}  
+          compartmentId: ${compartment_ocid}
+
+      postgresql_hotstandby2_flex_shape_ocpus:
+        type: number
+        required: false
+        minimum: 1
+        maximum: 128
+        multipleOf: 1
+        default: 1
+        title: "Flex Shape OCPUs"
+        description: "Choose number of OCPUs for Flex Shape."
+        visible:
+          and:
+            - or:
+              - eq:
+                - postgresql_hotstandby2_shape 
+                - "VM.Standard.E3.Flex"
+              - eq:
+                - postgresql_hotstandby2_shape 
+                - "VM.Standard.E4.Flex"
+
+      postgresql_hotstandby2_flex_shape_memory:
+        type: number
+        required: false
+        minimum: 1
+        maximum: 128
+        multipleOf: 1
+        default: 10
+        title: "Flex Shape Memory (GB)"
+        description: "Choose number GB for Flex Shape Memory."
+        visible:
+          and:
+            - or:
+              - eq:
+                - postgresql_hotstandby2_shape 
+                - "VM.Standard.E3.Flex"
+              - eq:
+                - postgresql_hotstandby2_shape
+                - "VM.Standard.E4.Flex"
+
 
     outputs:
 

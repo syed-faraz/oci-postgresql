@@ -1,3 +1,6 @@
+## Copyright © 2020, Oracle and/or its affiliates. 
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+
 variable "tenancy_ocid" {}
 variable "user_ocid" {}
 variable "fingerprint" {}
@@ -6,9 +9,17 @@ variable "region" {}
 variable "compartment_ocid" {}
 variable "availablity_domain_name" {}
 
+variable "show_advanced" {
+  default = false
+}
+
 variable "release" {
   description = "Reference Architecture Release (OCI Architecture Center)"
-  default     = "1.0"
+  default     = "1.1"
+}
+
+variable "ssh_public_key" {
+  default = ""
 }
 
 variable "postgresql_vcn_cidr" {
@@ -20,7 +31,15 @@ variable "postgresql_subnet_cidr" {
 }
 
 variable "postgresql_instance_shape" {
-  default = "VM.Standard2.1"
+  default = "VM.Standard.E3.Flex"
+}
+
+variable "postgresql_instance_flex_shape_ocpus" {
+    default = 1
+}
+
+variable "postgresql_instance_flex_shape_memory" {
+    default = 10
 }
 
 variable "instance_os" {
@@ -62,7 +81,15 @@ variable "postgresql_hotstandby1_ad" {
 }
 
 variable "postgresql_hotstandby1_shape" {
-  default = "VM.Standard2.1"
+  default = "VM.Standard.E3.Flex"
+}
+
+variable "postgresql_hotstandby1_flex_shape_ocpus" {
+    default = 1
+}
+
+variable "postgresql_hotstandby1_flex_shape_memory" {
+    default = 10
 }
 
 variable "postgresql_deploy_hotstandby2" {
@@ -78,6 +105,28 @@ variable "postgresql_hotstandby2_ad" {
 }
 
 variable "postgresql_hotstandby2_shape" {
-  default = "VM.Standard2.1"
+  default = "VM.Standard.E3.Flex"
 }
 
+variable "postgresql_hotstandby2_flex_shape_ocpus" {
+    default = 1
+}
+
+variable "postgresql_hotstandby2_flex_shape_memory" {
+    default = 10
+}
+
+# Dictionary Locals
+locals {
+  compute_flexible_shapes = [
+    "VM.Standard.E3.Flex",
+    "VM.Standard.E4.Flex"
+  ]
+}
+
+# Checks if is using Flexible Compute Shapes
+locals {
+  is_flexible_postgresql_instance_shape = contains(local.compute_flexible_shapes, var.postgresql_instance_shape)
+  is_flexible_postgresql_hotstandby1_shape = contains(local.compute_flexible_shapes, var.postgresql_hotstandby1_shape)
+  is_flexible_postgresql_hotstandby2_shape = contains(local.compute_flexible_shapes, var.postgresql_hotstandby2_shape)
+}

@@ -1,13 +1,8 @@
+## Copyright © 2020, Oracle and/or its affiliates. 
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+
 output "PostgreSQL_Master_VM_public_IP" {
   value = data.oci_core_vnic.postgresql_master_primaryvnic.public_ip_address
-}
-
-output "PostgreSQL_HotStandby1_VM_public_IP" {
-  value = element(data.oci_core_vnic.postgresql_hotstandby1_primaryvnic.*.public_ip_address,0)
-}
-
-output "PostgreSQL_HotStandby2_VM_public_IP" {
-  value = element(data.oci_core_vnic.postgresql_hotstandby2_primaryvnic.*.public_ip_address,0)
 }
 
 output "PostgreSQL_Username" {

@@ -44,10 +44,39 @@ data "oci_core_vnic" "postgresql_hotstandby2_primaryvnic" {
 
 
 # Get the latest Oracle Linux image
-data "oci_core_images" "InstanceImageOCID" {
+data "oci_core_images" "InstanceImageOCID_postgresql_instance_shape" {
   compartment_id           = var.compartment_ocid
   operating_system         = var.instance_os
   operating_system_version = var.linux_os_version
+  shape                    = var.postgresql_instance_shape
+
+  filter {
+    name   = "display_name"
+    values = ["^.*Oracle[^G]*$"]
+    regex  = true
+  }
+}
+
+# Get the latest Oracle Linux image
+data "oci_core_images" "InstanceImageOCID_postgresql_hotstandby1_shape" {
+  compartment_id           = var.compartment_ocid
+  operating_system         = var.instance_os
+  operating_system_version = var.linux_os_version
+  shape                    = var.postgresql_hotstandby1_shape
+
+  filter {
+    name   = "display_name"
+    values = ["^.*Oracle[^G]*$"]
+    regex  = true
+  }
+}
+
+# Get the latest Oracle Linux image
+data "oci_core_images" "InstanceImageOCID_postgresql_hotstandby2_shape" {
+  compartment_id           = var.compartment_ocid
+  operating_system         = var.instance_os
+  operating_system_version = var.linux_os_version
+  shape                    = var.postgresql_hotstandby2_shape
 
   filter {
     name   = "display_name"

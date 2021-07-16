@@ -23,8 +23,8 @@
       - postgresql_password
       - postgresql_deploy_hotstandby1
       - postgresql_deploy_hotstandby2
-      - show_advanced
       - create_in_private_subnet
+      - show_advanced
 
     - title: Network & Compute Optional Configuration
       visible: 

@@ -13,9 +13,13 @@ variable "show_advanced" {
   default = false
 }
 
+variable "create_in_private_subnet" {
+  default = true
+}
+
 variable "release" {
   description = "Reference Architecture Release (OCI Architecture Center)"
-  default     = "1.1"
+  default     = "1.2"
 }
 
 variable "ssh_public_key" {
@@ -30,16 +34,20 @@ variable "postgresql_subnet_cidr" {
   default = "10.1.20.0/24"
 }
 
+variable "bastion_subnet_cidr" {
+  default = "10.1.21.0/24"
+}
+
 variable "postgresql_instance_shape" {
   default = "VM.Standard.E3.Flex"
 }
 
 variable "postgresql_instance_flex_shape_ocpus" {
-    default = 1
+  default = 1
 }
 
 variable "postgresql_instance_flex_shape_memory" {
-    default = 10
+  default = 10
 }
 
 variable "instance_os" {
@@ -85,11 +93,11 @@ variable "postgresql_hotstandby1_shape" {
 }
 
 variable "postgresql_hotstandby1_flex_shape_ocpus" {
-    default = 1
+  default = 1
 }
 
 variable "postgresql_hotstandby1_flex_shape_memory" {
-    default = 10
+  default = 10
 }
 
 variable "postgresql_deploy_hotstandby2" {
@@ -109,11 +117,11 @@ variable "postgresql_hotstandby2_shape" {
 }
 
 variable "postgresql_hotstandby2_flex_shape_ocpus" {
-    default = 1
+  default = 1
 }
 
 variable "postgresql_hotstandby2_flex_shape_memory" {
-    default = 10
+  default = 10
 }
 
 # Dictionary Locals
@@ -126,7 +134,7 @@ locals {
 
 # Checks if is using Flexible Compute Shapes
 locals {
-  is_flexible_postgresql_instance_shape = contains(local.compute_flexible_shapes, var.postgresql_instance_shape)
+  is_flexible_postgresql_instance_shape    = contains(local.compute_flexible_shapes, var.postgresql_instance_shape)
   is_flexible_postgresql_hotstandby1_shape = contains(local.compute_flexible_shapes, var.postgresql_hotstandby1_shape)
   is_flexible_postgresql_hotstandby2_shape = contains(local.compute_flexible_shapes, var.postgresql_hotstandby2_shape)
 }

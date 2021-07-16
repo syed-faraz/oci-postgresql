@@ -24,6 +24,7 @@
       - postgresql_deploy_hotstandby1
       - postgresql_deploy_hotstandby2
       - show_advanced
+      - create_in_private_subnet
 
     - title: Network & Compute Optional Configuration
       visible: 

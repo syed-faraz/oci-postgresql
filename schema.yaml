@@ -23,6 +23,7 @@
       - postgresql_password
       - postgresql_deploy_hotstandby1
       - postgresql_deploy_hotstandby2
+      - create_in_private_subnet
       - show_advanced
 
     - title: Network & Compute Optional Configuration
@@ -146,6 +147,14 @@
           - "11"
           - "10"          
           - "9.6" 
+
+      create_in_private_subnet:
+        type: boolean
+        visible: true
+        required: true
+        title: "Create in Private Subnet"
+        description: "Providing an option to create PostgreSQL VMs in private or public subnet"
+        default: true
 
       # Optional Configuration  
 

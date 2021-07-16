@@ -7,8 +7,8 @@ resource "oci_core_security_list" "postgresql_securitylist" {
   display_name   = "PostgreSQLSecurityList"
 
   egress_security_rules {
-      protocol    = "6"
-      destination = "0.0.0.0/0"
+    protocol    = "6"
+    destination = "0.0.0.0/0"
   }
 
   ingress_security_rules {
@@ -30,5 +30,5 @@ resource "oci_core_security_list" "postgresql_securitylist" {
       min = "5432"
     }
   }
-  defined_tags = {"${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+  defined_tags = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }

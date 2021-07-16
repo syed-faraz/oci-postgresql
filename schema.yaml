@@ -147,6 +147,14 @@
           - "10"          
           - "9.6" 
 
+      create_in_private_subnet:
+        type: boolean
+        visible: true
+        required: true
+        title: "Create in Private Subnet"
+        description: "Providing an option to create PostgreSQL VMs in private or public subnet"
+        default: true
+
       # Optional Configuration  
 
       postgresql_vcn_cidr:

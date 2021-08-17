@@ -78,7 +78,7 @@ postgresql_hotstandby1_fd = "<postgresql_hotstandby1_fd>" # for example FAULT-DO
 # Optional second HotStandby 
 postgresql_deploy_hotstandby2 = true
 postgresql_hotstandby2_ad = "<availablity_domain_name>" # for example GrCH:US-ASHBURN-AD-3
-postgresql_hotstandby1_fd = "<postgresql_hotstandby1_fd>" # for example FAULT-DOMAIN-3
+postgresql_hotstandby2_fd = "<postgresql_hotstandby2_fd>" # for example FAULT-DOMAIN-3
 
 ````
 

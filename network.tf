@@ -11,6 +11,7 @@ resource "oci_core_virtual_network" "postgresql_vcn" {
 
 
 resource "oci_core_internet_gateway" "postgresql_igw" {
+  count          = var.create_in_private_subnet ? 0 : 1
   compartment_id = var.compartment_ocid
   display_name   = "PostgreSQLIGW"
   vcn_id         = oci_core_virtual_network.postgresql_vcn.id
@@ -18,6 +19,7 @@ resource "oci_core_internet_gateway" "postgresql_igw" {
 }
 
 resource "oci_core_route_table" "postgresql_rt" {
+  count          = var.create_in_private_subnet ? 0 : 1
   compartment_id = var.compartment_ocid
   vcn_id         = oci_core_virtual_network.postgresql_vcn.id
   display_name   = "PostgreSQLRouteTable"
@@ -25,7 +27,7 @@ resource "oci_core_route_table" "postgresql_rt" {
   route_rules {
     destination       = "0.0.0.0/0"
     destination_type  = "CIDR_BLOCK"
-    network_entity_id = oci_core_internet_gateway.postgresql_igw.id
+    network_entity_id = oci_core_internet_gateway.postgresql_igw[count.index].id
   }
   defined_tags = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
@@ -59,12 +61,13 @@ resource "oci_core_subnet" "postgresql_subnet" {
   security_list_ids          = [oci_core_security_list.postgresql_securitylist.id]
   compartment_id             = var.compartment_ocid
   vcn_id                     = oci_core_virtual_network.postgresql_vcn.id
-  route_table_id             = var.create_in_private_subnet ? oci_core_route_table.postgresql_rt2[0].id : oci_core_route_table.postgresql_rt.id
+  route_table_id             = var.create_in_private_subnet ? oci_core_route_table.postgresql_rt2[0].id : oci_core_route_table.postgresql_rt[0].id
   dhcp_options_id            = oci_core_virtual_network.postgresql_vcn.default_dhcp_options_id
   prohibit_public_ip_on_vnic = var.create_in_private_subnet ? true : false
   defined_tags               = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
 
+/*
 resource "oci_core_subnet" "bastion_subnet" {
   cidr_block   = var.bastion_subnet_cidr
   display_name = "BastionSubnet"
@@ -75,4 +78,4 @@ resource "oci_core_subnet" "bastion_subnet" {
   #  dhcp_options_id = oci_core_virtual_network.postgresql_vcn.default_dhcp_options_id
   defined_tags = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
-
+*/

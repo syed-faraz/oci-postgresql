@@ -41,6 +41,7 @@ data "template_file" "postgresql_master_setup_sh" {
     pg_version_no_dot    = replace(var.postgresql_version, ".", "")
     pg_version           = var.postgresql_version
     pg_replicat_username = var.postgresql_replicat_username
+    node_subnet_cidr     = var.postgresql_subnet_cidr
   }
 }
 
@@ -72,6 +73,7 @@ data "template_file" "postgresql_standby_setup_sh" {
 }
 
 resource "null_resource" "postgresql_master_install_binaries" {
+
   depends_on = [oci_core_instance.postgresql_master]
 
   provisioner "remote-exec" {

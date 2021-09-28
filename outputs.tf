@@ -13,3 +13,15 @@ output "generated_ssh_private_key" {
   value     = tls_private_key.public_private_key_pair.private_key_pem
   sensitive = true
 }
+
+output "bastion_ssh_postgresql_master_session_metadata" {
+  value = oci_bastion_session.ssh_postgresql_master_session.*.ssh_metadata
+}
+
+output "bastion_ssh_postgresql_hotstandby1_session_metadata" {
+  value = oci_bastion_session.ssh_postgresql_hotstandby1_session.*.ssh_metadata
+}
+
+output "bastion_ssh_postgresql_hotstandby2_session_metadata" {
+  value = oci_bastion_session.ssh_postgresql_hotstandby2_session.*.ssh_metadata
+}

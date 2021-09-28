@@ -42,7 +42,7 @@ sudo -u root bash -c "echo 'host replication ${pg_replicat_username} ${pg_hotsta
 sudo -u root bash -c "echo 'host replication ${pg_replicat_username} ${pg_master_ip}/32 md5' | sudo tee -a /var/lib/pgsql/${pg_version}/data/pg_hba.conf" 
 sudo -u root bash -c "echo 'host all all ${pg_hotstandby_ip}/32 md5' | sudo tee -a /var/lib/pgsql/${pg_version}/data/pg_hba.conf" 
 sudo -u root bash -c "echo 'host all all ${pg_master_ip}/32 md5' | sudo tee -a /var/lib/pgsql/${pg_version}/data/pg_hba.conf" 
-
+sudo -u root bash -c "echo 'host all all ${node_subnet_cidr} md5' | sudo tee -a /var/lib/pgsql/${pg_version}/data/pg_hba.conf" 
 sudo -u root bash -c "chown postgres /var/lib/pgsql/${pg_version}/data/pg_hba.conf" 
 
 # Restart of PostrgreSQL service

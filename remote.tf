@@ -1,4 +1,4 @@
-## Copyright © 2020, Oracle and/or its affiliates. 
+## Copyright © 2021, Oracle and/or its affiliates. 
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 data "template_file" "postgresql_install_binaries_sh" {
@@ -18,6 +18,7 @@ data "template_file" "postgresql_master_initdb_sh" {
     pg_password       = var.postgresql_password
     pg_version_no_dot = replace(var.postgresql_version, ".", "")
     pg_version        = var.postgresql_version
+    add_iscsi_volume  = var.add_iscsi_volume
   }
 }
 
@@ -42,6 +43,7 @@ data "template_file" "postgresql_master_setup_sh" {
     pg_version           = var.postgresql_version
     pg_replicat_username = var.postgresql_replicat_username
     node_subnet_cidr     = var.postgresql_subnet_cidr
+    add_iscsi_volume     = var.add_iscsi_volume
   }
 }
 
@@ -54,6 +56,7 @@ data "template_file" "postgresql_master_setup2_sh" {
     pg_hotstandby_ip     = element(data.oci_core_vnic.postgresql_hotstandby2_primaryvnic.*.private_ip_address, 0)
     pg_version           = var.postgresql_version
     pg_replicat_username = var.postgresql_replicat_username
+    add_iscsi_volume     = var.add_iscsi_volume
   }
 }
 
@@ -69,12 +72,81 @@ data "template_file" "postgresql_standby_setup_sh" {
     pg_version           = var.postgresql_version
     pg_replicat_username = var.postgresql_replicat_username
     pg_replicat_password = var.postgresql_password
+    add_iscsi_volume     = var.add_iscsi_volume
   }
+}
+
+resource "null_resource" "postgresql_master_attach_volume" {
+  count      = var.add_iscsi_volume ? 1 : 0
+  depends_on = [oci_core_instance.postgresql_master, oci_core_volume.postgresql_master_volume, oci_core_volume_attachment.postgresql_master_volume_attachment]
+
+  provisioner "file" {
+    connection {
+      type                = "ssh"
+      user                = "opc"
+      host                = var.create_in_private_subnet ? data.oci_core_vnic.postgresql_master_primaryvnic.private_ip_address : data.oci_core_vnic.postgresql_master_primaryvnic.public_ip_address
+      private_key         = tls_private_key.public_private_key_pair.private_key_pem
+      script_path         = "/home/opc/myssh.sh"
+      agent               = false
+      timeout             = "10m"
+      bastion_host        = var.create_in_private_subnet ? "host.bastion.${var.region}.oci.oraclecloud.com" : null
+      bastion_port        = var.create_in_private_subnet ? "22" : null
+      bastion_user        = var.create_in_private_subnet ? oci_bastion_session.ssh_postgresql_master_session[0].id : null
+      bastion_private_key = var.create_in_private_subnet ? tls_private_key.public_private_key_pair.private_key_pem : null
+    }
+    source      = "scripts/iscsiattach.sh"
+    destination = "/home/opc/iscsiattach.sh"
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      type                = "ssh"
+      user                = "opc"
+      host                = var.create_in_private_subnet ? data.oci_core_vnic.postgresql_master_primaryvnic.private_ip_address : data.oci_core_vnic.postgresql_master_primaryvnic.public_ip_address
+      private_key         = tls_private_key.public_private_key_pair.private_key_pem
+      script_path         = "/home/opc/myssh.sh"
+      agent               = false
+      timeout             = "10m"
+      bastion_host        = var.create_in_private_subnet ? "host.bastion.${var.region}.oci.oraclecloud.com" : null
+      bastion_port        = var.create_in_private_subnet ? "22" : null
+      bastion_user        = var.create_in_private_subnet ? oci_bastion_session.ssh_postgresql_master_session[0].id : null
+      bastion_private_key = var.create_in_private_subnet ? tls_private_key.public_private_key_pair.private_key_pem : null
+    }
+    inline = ["sudo /bin/su -c \"chown root /home/opc/iscsiattach.sh\"",
+      "sudo /bin/su -c \"chmod u+x /home/opc/iscsiattach.sh\"",
+    "sudo /bin/su -c \"/home/opc/iscsiattach.sh\""]
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      type                = "ssh"
+      user                = "opc"
+      host                = var.create_in_private_subnet ? data.oci_core_vnic.postgresql_master_primaryvnic.private_ip_address : data.oci_core_vnic.postgresql_master_primaryvnic.public_ip_address
+      private_key         = tls_private_key.public_private_key_pair.private_key_pem
+      script_path         = "/home/opc/myssh.sh"
+      agent               = false
+      timeout             = "10m"
+      bastion_host        = var.create_in_private_subnet ? "host.bastion.${var.region}.oci.oraclecloud.com" : null
+      bastion_port        = var.create_in_private_subnet ? "22" : null
+      bastion_user        = var.create_in_private_subnet ? oci_bastion_session.ssh_postgresql_master_session[0].id : null
+      bastion_private_key = var.create_in_private_subnet ? tls_private_key.public_private_key_pair.private_key_pem : null
+    }
+    inline = [
+      "sudo -u root parted /dev/sdb --script -- mklabel gpt",
+      "sudo -u root parted /dev/sdb --script -- mkpart primary ext4 0% 100%",
+      "sudo -u root mkfs.ext4 /dev/sdb1",
+      "sudo -u root mkdir /data",
+      "sudo -u root mount /dev/sdb1 /data",
+      "sudo /bin/su -c \"echo '/dev/sdb1              /data  ext4    defaults,noatime,_netdev    0   0' >> /etc/fstab\"",
+      "sudo -u root mount | grep sdb1",
+    ]
+  }
+
 }
 
 resource "null_resource" "postgresql_master_install_binaries" {
 
-  depends_on = [oci_core_instance.postgresql_master]
+  depends_on = [oci_core_instance.postgresql_master, null_resource.postgresql_master_attach_volume]
 
   provisioner "remote-exec" {
     connection {
@@ -199,7 +271,7 @@ resource "null_resource" "postgresql_master_initdb" {
 
 resource "null_resource" "postgresql_hotstandby1_install_binaries" {
   count      = var.postgresql_deploy_hotstandby1 ? 1 : 0
-  depends_on = [oci_core_instance.postgresql_master, oci_core_instance.postgresql_hotstandby1]
+  depends_on = [oci_core_instance.postgresql_master, oci_core_instance.postgresql_hotstandby1, null_resource.postgresql_hotstandby1_attach_volume]
 
   provisioner "remote-exec" {
     connection {
@@ -262,7 +334,7 @@ resource "null_resource" "postgresql_hotstandby1_install_binaries" {
 
 resource "null_resource" "postgresql_hotstandby2_install_binaries" {
   count      = var.postgresql_deploy_hotstandby2 ? 1 : 0
-  depends_on = [oci_core_instance.postgresql_master, oci_core_instance.postgresql_hotstandby2]
+  depends_on = [oci_core_instance.postgresql_master, oci_core_instance.postgresql_hotstandby2, null_resource.postgresql_hotstandby2_attach_volume]
 
   provisioner "remote-exec" {
     connection {
@@ -409,7 +481,7 @@ resource "null_resource" "postgresql_master_setup" {
 
 resource "null_resource" "postgresql_master_setup2" {
   count      = var.postgresql_deploy_hotstandby2 ? 1 : 0
-  depends_on = [null_resource.postgresql_master_initdb, null_resource.postgresql_hotstandby2_install_binaries]
+  depends_on = [null_resource.postgresql_master_initdb, null_resource.postgresql_hotstandby2_install_binaries, null_resource.postgresql_master_setup, null_resource.postgresql_hotstandby1_setup]
 
   provisioner "remote-exec" {
     connection {
@@ -471,9 +543,76 @@ resource "null_resource" "postgresql_master_setup2" {
 }
 
 
+resource "null_resource" "postgresql_hotstandby1_attach_volume" {
+  count      = (var.postgresql_deploy_hotstandby1 && var.add_iscsi_volume) ? 1 : 0
+  depends_on = [oci_core_instance.postgresql_hotstandby1, oci_core_volume.postgresql_hotstandby1_volume, oci_core_volume_attachment.postgresql_hotstandby1_volume_attachment]
+
+  provisioner "file" {
+    connection {
+      type                = "ssh"
+      user                = "opc"
+      host                = var.create_in_private_subnet ? data.oci_core_vnic.postgresql_hotstandby1_primaryvnic[count.index].private_ip_address : data.oci_core_vnic.postgresql_hotstandby1_primaryvnic[count.index].public_ip_address
+      private_key         = tls_private_key.public_private_key_pair.private_key_pem
+      script_path         = "/home/opc/myssh.sh"
+      agent               = false
+      timeout             = "10m"
+      bastion_host        = var.create_in_private_subnet ? "host.bastion.${var.region}.oci.oraclecloud.com" : null
+      bastion_port        = var.create_in_private_subnet ? "22" : null
+      bastion_user        = var.create_in_private_subnet ? oci_bastion_session.ssh_postgresql_hotstandby1_session[count.index].id : null
+      bastion_private_key = var.create_in_private_subnet ? tls_private_key.public_private_key_pair.private_key_pem : null
+    }
+    source      = "scripts/iscsiattach.sh"
+    destination = "/home/opc/iscsiattach.sh"
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      type                = "ssh"
+      user                = "opc"
+      host                = var.create_in_private_subnet ? data.oci_core_vnic.postgresql_hotstandby1_primaryvnic[count.index].private_ip_address : data.oci_core_vnic.postgresql_hotstandby1_primaryvnic[count.index].public_ip_address
+      private_key         = tls_private_key.public_private_key_pair.private_key_pem
+      script_path         = "/home/opc/myssh.sh"
+      agent               = false
+      timeout             = "10m"
+      bastion_host        = var.create_in_private_subnet ? "host.bastion.${var.region}.oci.oraclecloud.com" : null
+      bastion_port        = var.create_in_private_subnet ? "22" : null
+      bastion_user        = var.create_in_private_subnet ? oci_bastion_session.ssh_postgresql_hotstandby1_session[count.index].id : null
+      bastion_private_key = var.create_in_private_subnet ? tls_private_key.public_private_key_pair.private_key_pem : null
+    }
+    inline = ["sudo /bin/su -c \"chown root /home/opc/iscsiattach.sh\"",
+      "sudo /bin/su -c \"chmod u+x /home/opc/iscsiattach.sh\"",
+    "sudo /bin/su -c \"/home/opc/iscsiattach.sh\""]
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      type                = "ssh"
+      user                = "opc"
+      host                = var.create_in_private_subnet ? data.oci_core_vnic.postgresql_hotstandby1_primaryvnic[count.index].private_ip_address : data.oci_core_vnic.postgresql_hotstandby1_primaryvnic[count.index].public_ip_address
+      private_key         = tls_private_key.public_private_key_pair.private_key_pem
+      script_path         = "/home/opc/myssh.sh"
+      agent               = false
+      timeout             = "10m"
+      bastion_host        = var.create_in_private_subnet ? "host.bastion.${var.region}.oci.oraclecloud.com" : null
+      bastion_port        = var.create_in_private_subnet ? "22" : null
+      bastion_user        = var.create_in_private_subnet ? oci_bastion_session.ssh_postgresql_hotstandby1_session[count.index].id : null
+      bastion_private_key = var.create_in_private_subnet ? tls_private_key.public_private_key_pair.private_key_pem : null
+    }
+    inline = [
+      "sudo -u root parted /dev/sdb --script -- mklabel gpt",
+      "sudo -u root parted /dev/sdb --script -- mkpart primary ext4 0% 100%",
+      "sudo -u root mkfs.ext4 /dev/sdb1",
+      "sudo -u root mkdir /data",
+      "sudo -u root mount /dev/sdb1 /data",
+      "sudo /bin/su -c \"echo '/dev/sdb1              /data  ext4    defaults,noatime,_netdev    0   0' >> /etc/fstab\"",
+      "sudo -u root mount | grep sdb1",
+    ]
+  }
+}
+
 resource "null_resource" "postgresql_hotstandby1_setup" {
   count      = var.postgresql_deploy_hotstandby1 ? 1 : 0
-  depends_on = [null_resource.postgresql_master_setup, null_resource.postgresql_hotstandby1_install_binaries]
+  depends_on = [null_resource.postgresql_master_setup, null_resource.postgresql_hotstandby1_install_binaries, null_resource.postgresql_hotstandby1_attach_volume]
 
   provisioner "remote-exec" {
     connection {
@@ -534,9 +673,76 @@ resource "null_resource" "postgresql_hotstandby1_setup" {
   }
 }
 
+resource "null_resource" "postgresql_hotstandby2_attach_volume" {
+  count      = (var.postgresql_deploy_hotstandby2 && var.add_iscsi_volume) ? 1 : 0
+  depends_on = [oci_core_instance.postgresql_hotstandby2, oci_core_volume.postgresql_hotstandby2_volume, oci_core_volume_attachment.postgresql_hotstandby2_volume_attachment]
+
+  provisioner "file" {
+    connection {
+      type                = "ssh"
+      user                = "opc"
+      host                = var.create_in_private_subnet ? data.oci_core_vnic.postgresql_hotstandby2_primaryvnic[count.index].private_ip_address : data.oci_core_vnic.postgresql_hotstandby2_primaryvnic[count.index].public_ip_address
+      private_key         = tls_private_key.public_private_key_pair.private_key_pem
+      script_path         = "/home/opc/myssh.sh"
+      agent               = false
+      timeout             = "10m"
+      bastion_host        = var.create_in_private_subnet ? "host.bastion.${var.region}.oci.oraclecloud.com" : null
+      bastion_port        = var.create_in_private_subnet ? "22" : null
+      bastion_user        = var.create_in_private_subnet ? oci_bastion_session.ssh_postgresql_hotstandby2_session[count.index].id : null
+      bastion_private_key = var.create_in_private_subnet ? tls_private_key.public_private_key_pair.private_key_pem : null
+    }
+    source      = "scripts/iscsiattach.sh"
+    destination = "/home/opc/iscsiattach.sh"
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      type                = "ssh"
+      user                = "opc"
+      host                = var.create_in_private_subnet ? data.oci_core_vnic.postgresql_hotstandby2_primaryvnic[count.index].private_ip_address : data.oci_core_vnic.postgresql_hotstandby2_primaryvnic[count.index].public_ip_address
+      private_key         = tls_private_key.public_private_key_pair.private_key_pem
+      script_path         = "/home/opc/myssh.sh"
+      agent               = false
+      timeout             = "10m"
+      bastion_host        = var.create_in_private_subnet ? "host.bastion.${var.region}.oci.oraclecloud.com" : null
+      bastion_port        = var.create_in_private_subnet ? "22" : null
+      bastion_user        = var.create_in_private_subnet ? oci_bastion_session.ssh_postgresql_hotstandby2_session[count.index].id : null
+      bastion_private_key = var.create_in_private_subnet ? tls_private_key.public_private_key_pair.private_key_pem : null
+    }
+    inline = ["sudo /bin/su -c \"chown root /home/opc/iscsiattach.sh\"",
+      "sudo /bin/su -c \"chmod u+x /home/opc/iscsiattach.sh\"",
+    "sudo /bin/su -c \"/home/opc/iscsiattach.sh\""]
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      type                = "ssh"
+      user                = "opc"
+      host                = var.create_in_private_subnet ? data.oci_core_vnic.postgresql_hotstandby2_primaryvnic[count.index].private_ip_address : data.oci_core_vnic.postgresql_hotstandby2_primaryvnic[count.index].public_ip_address
+      private_key         = tls_private_key.public_private_key_pair.private_key_pem
+      script_path         = "/home/opc/myssh.sh"
+      agent               = false
+      timeout             = "10m"
+      bastion_host        = var.create_in_private_subnet ? "host.bastion.${var.region}.oci.oraclecloud.com" : null
+      bastion_port        = var.create_in_private_subnet ? "22" : null
+      bastion_user        = var.create_in_private_subnet ? oci_bastion_session.ssh_postgresql_hotstandby2_session[count.index].id : null
+      bastion_private_key = var.create_in_private_subnet ? tls_private_key.public_private_key_pair.private_key_pem : null
+    }
+    inline = [
+      "sudo -u root parted /dev/sdb --script -- mklabel gpt",
+      "sudo -u root parted /dev/sdb --script -- mkpart primary ext4 0% 100%",
+      "sudo -u root mkfs.ext4 /dev/sdb1",
+      "sudo -u root mkdir /data",
+      "sudo -u root mount /dev/sdb1 /data",
+      "sudo /bin/su -c \"echo '/dev/sdb1              /data  ext4    defaults,noatime,_netdev    0   0' >> /etc/fstab\"",
+      "sudo -u root mount | grep sdb1",
+    ]
+  }
+}
+
 resource "null_resource" "postgresql_hotstandby2_setup" {
   count      = var.postgresql_deploy_hotstandby2 ? 1 : 0
-  depends_on = [null_resource.postgresql_master_setup2, null_resource.postgresql_hotstandby1_setup, null_resource.postgresql_hotstandby2_install_binaries]
+  depends_on = [null_resource.postgresql_master_setup2, null_resource.postgresql_hotstandby1_setup, null_resource.postgresql_hotstandby2_install_binaries, null_resource.postgresql_hotstandby2_attach_volume]
 
   provisioner "remote-exec" {
     connection {

@@ -1,4 +1,4 @@
-## Copyright © 2020, Oracle and/or its affiliates. 
+## Copyright © 2021, Oracle and/or its affiliates. 
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 variable "tenancy_ocid" {}
@@ -19,7 +19,7 @@ variable "create_in_private_subnet" {
 
 variable "release" {
   description = "Reference Architecture Release (OCI Architecture Center)"
-  default     = "1.2.1"
+  default     = "1.3"
 }
 
 variable "ssh_public_key" {
@@ -32,10 +32,6 @@ variable "postgresql_vcn_cidr" {
 
 variable "postgresql_subnet_cidr" {
   default = "10.1.20.0/24"
-}
-
-variable "bastion_subnet_cidr" {
-  default = "10.1.21.0/24"
 }
 
 variable "postgresql_instance_shape" {
@@ -74,6 +70,14 @@ variable "postgresql_password" {
 
 variable "postgresql_version" {
   default = "13"
+}
+
+variable "add_iscsi_volume" {
+  default = true
+}
+
+variable "iscsi_volume_size_in_gbs" {
+  default = 100
 }
 
 variable "postgresql_deploy_hotstandby1" {

@@ -1,4 +1,4 @@
-## Copyright © 2020, Oracle and/or its affiliates. 
+## Copyright © 2021, Oracle and/or its affiliates. 
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
     title: "Create three-node deployment of a High Available PostgreSQL database on Oracle Cloud Infrastructure Compute instances."
@@ -26,16 +26,24 @@
       - create_in_private_subnet
       - show_advanced
 
-    - title: Network & Compute Optional Configuration
+    - title: Network Optional Configuration
       visible: 
           and:
             - show_advanced
       variables:
       - postgresql_vcn_cidr
       - postgresql_subnet_cidr
+
+    - title: Compute & Storage Optional Configuration
+      visible: 
+          and:
+            - show_advanced
+      variables:
       - ssh_public_key
       - instance_os
       - linux_os_version
+      - add_iscsi_volume
+      - iscsi_volume_size_in_gbs
 
     - title: PostgreSQL Master Optional Configuration
       visible: 
@@ -153,10 +161,30 @@
         visible: true
         required: true
         title: "Create in Private Subnet"
-        description: "Providing an option to create PostgreSQL VMs in private or public subnet"
+        description: "Providing an option to create PostgreSQL VMs in private or public subnet (for private subnet OCI Bastion Service will be provisioned)."
         default: true
 
       # Optional Configuration  
+
+      add_iscsi_volume:
+        type: boolean
+        title: "Add iSCSI Volume to compute?"
+        description: "Check the box to add iSCSI Volume to compute instance."
+        visible: true
+        default: true
+
+      iscsi_volume_size_in_gbs:
+        type: number
+        title: "iSCSI Volume Size in GB"
+        description: "Choose the size of iSCSI volume attached to compute instance (default=100GB, min=50GB, max=32000GB)."
+        required: false
+        minimum: 50
+        maximum: 32000
+        multipleOf: 1
+        default: 100    
+        visible: 
+          and:
+            - add_iscsi_volume   
 
       postgresql_vcn_cidr:
         type: string

@@ -1,4 +1,4 @@
-## Copyright © 2020, Oracle and/or its affiliates. 
+## Copyright © 2021, Oracle and/or its affiliates. 
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 resource "oci_core_virtual_network" "postgresql_vcn" {
@@ -67,15 +67,3 @@ resource "oci_core_subnet" "postgresql_subnet" {
   defined_tags               = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
 
-/*
-resource "oci_core_subnet" "bastion_subnet" {
-  cidr_block   = var.bastion_subnet_cidr
-  display_name = "BastionSubnet"
-  #  dns_label       = "bastionsubnet"
-  compartment_id = var.compartment_ocid
-  vcn_id         = oci_core_virtual_network.postgresql_vcn.id
-  route_table_id = oci_core_route_table.postgresql_rt.id
-  #  dhcp_options_id = oci_core_virtual_network.postgresql_vcn.default_dhcp_options_id
-  defined_tags = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
-}
-*/

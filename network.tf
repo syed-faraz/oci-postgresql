@@ -4,11 +4,24 @@
 resource "oci_core_virtual_network" "postgresql_vcn" {
   cidr_block     = var.postgresql_vcn_cidr
   compartment_id = var.compartment_ocid
-  display_name   = "PostgreSQLCN"
+  display_name   = "PostgreSQLVCN"
   dns_label      = "postgresvcn"
   defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
 
+resource "oci_core_drg" "postgresql_drg" {
+  count          = (var.create_in_private_subnet && var.create_drg_for_private_subnet) ? 1 : 0
+  compartment_id = var.compartment_ocid
+  display_name   = "PostgreSQLDRG"
+  defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+}
+
+resource "oci_core_drg_attachment" "postgresql_drg_attachment" {
+  count        = (var.create_in_private_subnet && var.create_drg_for_private_subnet) ? 1 : 0
+  drg_id       = oci_core_drg.postgresql_drg[0].id
+  vcn_id       = oci_core_virtual_network.postgresql_vcn.id
+  display_name = "PostgreSQLDRG_Attachment"
+}
 
 resource "oci_core_internet_gateway" "postgresql_igw" {
   count          = var.create_in_private_subnet ? 0 : 1

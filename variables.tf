@@ -17,9 +17,13 @@ variable "create_in_private_subnet" {
   default = true
 }
 
+variable "create_drg_for_private_subnet" {
+  default = true
+}
+
 variable "release" {
   description = "Reference Architecture Release (OCI Architecture Center)"
-  default     = "1.3"
+  default     = "1.3.1"
 }
 
 variable "ssh_public_key" {

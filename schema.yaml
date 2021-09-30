@@ -33,6 +33,7 @@
       variables:
       - postgresql_vcn_cidr
       - postgresql_subnet_cidr
+      - create_drg_for_private_subnet
 
     - title: Compute & Storage Optional Configuration
       visible: 
@@ -204,6 +205,16 @@
         description: "Choose Subnet CIDR for your PostgreSQL deployments."
         default: "10.1.20.0/24"   
       
+      create_drg_for_private_subnet:
+        type: boolean
+        visible: 
+          and:
+            - create_in_private_subnet
+        required: false
+        title: "Create DRG for Private Subnet scenario"
+        description: "Providing an option to create Dynamic Routing Gateway (DRG) for VCN and afterwards you can connect to your private subnet from on-premise."
+        default: true        
+
       postgresql_instance_shape:
         type: oci:core:instanceshape:name
         required: false

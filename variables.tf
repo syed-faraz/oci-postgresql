@@ -23,7 +23,7 @@ variable "create_drg_for_private_subnet" {
 
 variable "release" {
   description = "Reference Architecture Release (OCI Architecture Center)"
-  default     = "1.3.1"
+  default     = "1.3.2"
 }
 
 variable "ssh_public_key" {
@@ -82,6 +82,30 @@ variable "add_iscsi_volume" {
 
 variable "iscsi_volume_size_in_gbs" {
   default = 100
+}
+
+variable "boot_volume_backup_policy_enabled" {
+  default = true
+}
+
+variable "boot_volume_backup_policy_level" {
+  default = "gold"
+}
+
+variable "boot_volume_initial_backup" {
+  default = true
+}
+
+variable "block_volume_backup_policy_enabled" {
+  default = true
+}
+
+variable "block_volume_backup_policy_level" {
+  default = "gold"
+}
+
+variable "block_volume_initial_backup" {
+  default = true
 }
 
 variable "postgresql_deploy_hotstandby1" {

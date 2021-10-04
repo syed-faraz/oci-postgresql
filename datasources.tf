@@ -93,3 +93,25 @@ data "oci_identity_region_subscriptions" "home_region_subscriptions" {
     values = [true]
   }
 }
+
+
+data "oci_core_volume_backup_policies" "boot_volume_backup_policy" {
+  count = var.add_iscsi_volume ? 1 : 0
+
+  filter {
+    name   = "display_name"
+    values = [var.boot_volume_backup_policy_level]
+    regex  = true
+  }
+}
+
+
+data "oci_core_volume_backup_policies" "block_volume_backup_policy" {
+  count = var.add_iscsi_volume ? 1 : 0
+
+  filter {
+    name   = "display_name"
+    values = [var.block_volume_backup_policy_level]
+    regex  = true
+  }
+}

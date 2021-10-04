@@ -72,6 +72,19 @@ resource "oci_core_instance" "postgresql_master" {
   defined_tags = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
 
+resource "oci_core_boot_volume_backup" "postgresql_master_boot_volume_backup" {
+  count          = var.boot_volume_initial_backup ? 1 : 0
+  boot_volume_id = oci_core_instance.postgresql_master.boot_volume_id
+  display_name   = "PostgreSQL_Master_Boot_Volume_Backup_FULL"
+  type           = "FULL"
+}
+
+resource "oci_core_volume_backup_policy_assignment" "postgresql_master_boot_volume_backup_policy_assignment" {
+  count     = var.boot_volume_backup_policy_enabled ? 1 : 0
+  asset_id  = oci_core_instance.postgresql_master.boot_volume_id
+  policy_id = data.oci_core_volume_backup_policies.boot_volume_backup_policy[0].volume_backup_policies[0].id
+}
+
 resource "oci_core_instance" "postgresql_hotstandby1" {
   count               = var.postgresql_deploy_hotstandby1 ? 1 : 0
   availability_domain = var.postgresql_hotstandby1_ad == "" ? var.availablity_domain_name : var.postgresql_hotstandby1_ad
@@ -127,6 +140,19 @@ resource "oci_core_instance" "postgresql_hotstandby1" {
   defined_tags = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
 
+resource "oci_core_boot_volume_backup" "postgresql_hotstandby1_boot_volume_backup" {
+  count          = (var.postgresql_deploy_hotstandby1 && var.boot_volume_initial_backup) ? 1 : 0
+  boot_volume_id = oci_core_instance.postgresql_hotstandby1[0].boot_volume_id
+  display_name   = "PostgreSQL_Hotstandby1_Boot_Volume_Backup_FULL"
+  type           = "FULL"
+}
+
+resource "oci_core_volume_backup_policy_assignment" "postgresql_hotstandby1_boot_volume_backup_policy_assignment" {
+  count     = (var.postgresql_deploy_hotstandby1 && var.boot_volume_backup_policy_enabled) ? 1 : 0
+  asset_id  = oci_core_instance.postgresql_hotstandby1[0].boot_volume_id
+  policy_id = data.oci_core_volume_backup_policies.boot_volume_backup_policy[count.index].volume_backup_policies[0].id
+}
+
 resource "oci_core_instance" "postgresql_hotstandby2" {
   count               = var.postgresql_deploy_hotstandby2 ? 1 : 0
   availability_domain = var.postgresql_hotstandby2_ad == "" ? var.availablity_domain_name : var.postgresql_hotstandby2_ad
@@ -180,4 +206,17 @@ resource "oci_core_instance" "postgresql_hotstandby2" {
   }
 
   defined_tags = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
+}
+
+resource "oci_core_boot_volume_backup" "postgresql_hotstandby2_boot_volume_backup" {
+  count          = (var.postgresql_deploy_hotstandby2 && var.boot_volume_initial_backup) ? 1 : 0
+  boot_volume_id = oci_core_instance.postgresql_hotstandby2[0].boot_volume_id
+  display_name   = "PostgreSQL_Hotstandby2_Boot_Volume_Backup_FULL"
+  type           = "FULL"
+}
+
+resource "oci_core_volume_backup_policy_assignment" "postgresql_hotstandby2_boot_volume_backup_policy_assignment" {
+  count     = (var.postgresql_deploy_hotstandby2 && var.boot_volume_backup_policy_enabled) ? 1 : 0
+  asset_id  = oci_core_instance.postgresql_hotstandby2[0].boot_volume_id
+  policy_id = data.oci_core_volume_backup_policies.boot_volume_backup_policy[count.index].volume_backup_policies[0].id
 }

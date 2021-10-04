@@ -35,7 +35,7 @@
       - postgresql_subnet_cidr
       - create_drg_for_private_subnet
 
-    - title: Compute & Storage Optional Configuration
+    - title: Compute, Storage & Backup Optional Configuration
       visible: 
           and:
             - show_advanced
@@ -44,7 +44,13 @@
       - instance_os
       - linux_os_version
       - add_iscsi_volume
+      - boot_volume_backup_policy_enabled
+      - boot_volume_backup_policy_level
+      - boot_volume_initial_backup
       - iscsi_volume_size_in_gbs
+      - block_volume_backup_policy_enabled
+      - block_volume_backup_policy_level
+      - block_volume_initial_backup
 
     - title: PostgreSQL Master Optional Configuration
       visible: 
@@ -186,6 +192,68 @@
         visible: 
           and:
             - add_iscsi_volume   
+
+      boot_volume_backup_policy_enabled:
+        type: boolean
+        title: "Enable Boot Volume Backup Policy"
+        description: "Check the box if you want to add Boot Volume Backup Policy."
+        visible: true
+        default: true
+
+      boot_volume_backup_policy_level:
+        type: enum
+        required: false
+        title: "Boot Volume Backup Policy"
+        description: "Choose the value for Boot Volume Backup Policy."
+        default: "gold"
+        enum:
+          - "gold"
+          - "silver"
+          - "bronze"
+        visible: 
+          and:
+            - boot_volume_backup_policy_enabled
+
+      boot_volume_initial_backup:
+        type: boolean
+        title: "Initial FULL backup of the Boot Volume"
+        description: "Check the box if you want to take initial FULL backup of the Boot Volume."
+        visible: true
+        default: true
+
+      block_volume_backup_policy_enabled:
+        type: boolean
+        title: "Enable iSCSI Block Volume Backup Policy"
+        description: "Check the box if you want to add iSCSI Block Volume Backup Policy."
+        visible: 
+          and:
+            - add_iscsi_volume
+        default: true
+
+      block_volume_backup_policy_level:
+        type: enum
+        required: false
+        title: "iSCSI Block Volume Backup Policy"
+        description: "Choose the value for iSCSI Block Volume Backup Policy."
+        default: "gold"
+        enum:
+          - "gold"
+          - "silver"
+          - "bronze"
+        visible: 
+          and:
+            - add_iscsi_volume
+            - block_volume_backup_policy_enabled
+
+      block_volume_initial_backup:
+        type: boolean
+        title: "Initial FULL backup of the iSCSI Block Volume"
+        description: "Check the box if you want to take initial FULL backup of the iSCSI Block Volume."
+        visible: 
+          and:
+            - add_iscsi_volume
+        default: true
+
 
       postgresql_vcn_cidr:
         type: string

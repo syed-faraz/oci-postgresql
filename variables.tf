@@ -9,6 +9,18 @@ variable "region" {}
 variable "compartment_ocid" {}
 variable "availablity_domain_name" {}
 
+variable "use_existing_vcn" {
+  default = false
+}
+
+variable "postgresql_vcn" {
+  default = ""
+}
+
+variable "postgresql_subnet" {
+  default = ""
+}
+
 variable "show_advanced" {
   default = false
 }
@@ -23,7 +35,7 @@ variable "create_drg_for_private_subnet" {
 
 variable "release" {
   description = "Reference Architecture Release (OCI Architecture Center)"
-  default     = "1.3.2"
+  default     = "1.4"
 }
 
 variable "ssh_public_key" {

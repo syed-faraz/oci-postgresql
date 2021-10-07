@@ -2,7 +2,7 @@
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 data "template_file" "key_script" {
-  template = file("./scripts/sshkey.tpl")
+  template = file("${path.module}/scripts/sshkey.tpl")
   vars = {
     ssh_public_key = tls_private_key.public_private_key_pair.public_key_openssh
   }
@@ -49,7 +49,7 @@ resource "oci_core_instance" "postgresql_master" {
   fault_domain = var.postgresql_master_fd
 
   create_vnic_details {
-    subnet_id        = oci_core_subnet.postgresql_subnet.id
+    subnet_id        = !var.use_existing_vcn ? oci_core_subnet.postgresql_subnet[0].id : var.postgresql_subnet
     display_name     = "primaryvnic"
     assign_public_ip = var.create_in_private_subnet ? false : true
     hostname_label   = "pgmaster"
@@ -82,7 +82,7 @@ resource "oci_core_boot_volume_backup" "postgresql_master_boot_volume_backup" {
 resource "oci_core_volume_backup_policy_assignment" "postgresql_master_boot_volume_backup_policy_assignment" {
   count     = var.boot_volume_backup_policy_enabled ? 1 : 0
   asset_id  = oci_core_instance.postgresql_master.boot_volume_id
-  policy_id = data.oci_core_volume_backup_policies.boot_volume_backup_policy[0].volume_backup_policies[0].id
+  policy_id = data.oci_core_volume_backup_policies.boot_volume_backup_policy.volume_backup_policies[0].id
 }
 
 resource "oci_core_instance" "postgresql_hotstandby1" {
@@ -117,7 +117,7 @@ resource "oci_core_instance" "postgresql_hotstandby1" {
   fault_domain = var.postgresql_hotstandby1_fd
 
   create_vnic_details {
-    subnet_id        = oci_core_subnet.postgresql_subnet.id
+    subnet_id        = !var.use_existing_vcn ? oci_core_subnet.postgresql_subnet[0].id : var.postgresql_subnet
     display_name     = "primaryvnic"
     assign_public_ip = var.create_in_private_subnet ? false : true
     hostname_label   = "pgstandby1"
@@ -150,7 +150,7 @@ resource "oci_core_boot_volume_backup" "postgresql_hotstandby1_boot_volume_backu
 resource "oci_core_volume_backup_policy_assignment" "postgresql_hotstandby1_boot_volume_backup_policy_assignment" {
   count     = (var.postgresql_deploy_hotstandby1 && var.boot_volume_backup_policy_enabled) ? 1 : 0
   asset_id  = oci_core_instance.postgresql_hotstandby1[0].boot_volume_id
-  policy_id = data.oci_core_volume_backup_policies.boot_volume_backup_policy[count.index].volume_backup_policies[0].id
+  policy_id = data.oci_core_volume_backup_policies.boot_volume_backup_policy.volume_backup_policies[0].id
 }
 
 resource "oci_core_instance" "postgresql_hotstandby2" {
@@ -185,7 +185,7 @@ resource "oci_core_instance" "postgresql_hotstandby2" {
   fault_domain = var.postgresql_hotstandby2_fd
 
   create_vnic_details {
-    subnet_id        = oci_core_subnet.postgresql_subnet.id
+    subnet_id        = !var.use_existing_vcn ? oci_core_subnet.postgresql_subnet[0].id : var.postgresql_subnet
     display_name     = "primaryvnic"
     assign_public_ip = var.create_in_private_subnet ? false : true
     hostname_label   = "pgstandby2"
@@ -218,5 +218,5 @@ resource "oci_core_boot_volume_backup" "postgresql_hotstandby2_boot_volume_backu
 resource "oci_core_volume_backup_policy_assignment" "postgresql_hotstandby2_boot_volume_backup_policy_assignment" {
   count     = (var.postgresql_deploy_hotstandby2 && var.boot_volume_backup_policy_enabled) ? 1 : 0
   asset_id  = oci_core_instance.postgresql_hotstandby2[0].boot_volume_id
-  policy_id = data.oci_core_volume_backup_policies.boot_volume_backup_policy[count.index].volume_backup_policies[0].id
+  policy_id = data.oci_core_volume_backup_policies.boot_volume_backup_policy.volume_backup_policies[0].id
 }

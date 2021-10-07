@@ -36,7 +36,7 @@ If you don't have the required permissions and quota, contact your tenancy admin
 
 ## Deploy Using the Terraform CLI
 
-### Clone the Module
+### Clone the Repository
 Now, you'll want a local copy of this repo. You can make that with the commands:
 
     git clone https://github.com/oracle-quickstart/oci-postgresql
@@ -93,6 +93,29 @@ Run the following commands:
 When you no longer need the deployment, you can run this command to destroy the resources:
 
     terraform destroy
+
+## Deploy as a Module
+It's possible to utilize this repository as remote module, providing the necessary inputs:
+
+```
+module "oci-postgresql" {
+  source                        = "github.com/oracle-quickstart/oci-postgresql"
+  tenancy_ocid                  = "<tenancy_ocid>"
+  user_ocid                     = "<user_ocid>"
+  fingerprint                   = "<finger_print>"
+  private_key_path              = "<private_key_path>"
+  region                        = "<oci_region>"
+  availablity_domain_name       = "<availablity_domain_name>"
+  compartment_ocid              = "<compartment_ocid>"
+  use_existing_vcn              = true # You can inject your own VCN and subnet 
+  create_in_private_subnet      = true # Subnet should be associated with NATGW and proper Route Table.
+  postgresql_vcn                = oci_core_virtual_network.my_vcn.id # Injected VCN
+  postgresql_subnet             = oci_core_subnet.my_private_subnet.id # Injected Private Subnet
+  postgresql_password           = "<password>"
+  postgresql_deploy_hotstandby1 = true # if we want to setup hotstandby1
+  postgresql_deploy_hotstandby2 = true # if we want to setup hotstandby2
+}
+```
 
 ## Architecture Diagram
 

@@ -2,7 +2,7 @@
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 data "template_file" "postgresql_install_binaries_sh" {
-  template = file("scripts/postgresql_install_binaries.sh")
+  template = file("${path.module}/scripts/postgresql_install_binaries.sh")
 
   vars = {
     pg_password       = var.postgresql_password
@@ -12,7 +12,7 @@ data "template_file" "postgresql_install_binaries_sh" {
 }
 
 data "template_file" "postgresql_master_initdb_sh" {
-  template = file("scripts/postgresql_master_initdb.sh")
+  template = file("${path.module}/scripts/postgresql_master_initdb.sh")
 
   vars = {
     pg_password       = var.postgresql_password
@@ -23,7 +23,7 @@ data "template_file" "postgresql_master_initdb_sh" {
 }
 
 data "template_file" "postgresql_master_setup_sql" {
-  template = file("scripts/postgresql_master_setup.sql")
+  template = file("${path.module}/scripts/postgresql_master_setup.sql")
 
   vars = {
     pg_replicat_username = var.postgresql_replicat_username
@@ -33,7 +33,7 @@ data "template_file" "postgresql_master_setup_sql" {
 
 data "template_file" "postgresql_master_setup_sh" {
   count    = var.postgresql_deploy_hotstandby1 ? 1 : 0
-  template = file("scripts/postgresql_master_setup.sh")
+  template = file("${path.module}/scripts/postgresql_master_setup.sh")
 
   vars = {
     pg_master_ip         = data.oci_core_vnic.postgresql_master_primaryvnic.private_ip_address
@@ -49,7 +49,7 @@ data "template_file" "postgresql_master_setup_sh" {
 
 data "template_file" "postgresql_master_setup2_sh" {
   count    = var.postgresql_deploy_hotstandby2 ? 1 : 0
-  template = file("scripts/postgresql_master_setup2.sh")
+  template = file("${path.module}/scripts/postgresql_master_setup2.sh")
 
   vars = {
     pg_master_ip         = data.oci_core_vnic.postgresql_master_primaryvnic.private_ip_address
@@ -62,7 +62,7 @@ data "template_file" "postgresql_master_setup2_sh" {
 
 data "template_file" "postgresql_standby_setup_sh" {
   count    = var.postgresql_deploy_hotstandby1 ? 1 : 0
-  template = file("scripts/postgresql_standby_setup.sh")
+  template = file("${path.module}/scripts/postgresql_standby_setup.sh")
 
   vars = {
     pg_master_ip         = data.oci_core_vnic.postgresql_master_primaryvnic.private_ip_address
@@ -116,7 +116,7 @@ resource "null_resource" "postgresql_master_attach_volume" {
       bastion_user        = var.create_in_private_subnet ? oci_bastion_session.ssh_postgresql_master_session[0].id : null
       bastion_private_key = var.create_in_private_subnet ? tls_private_key.public_private_key_pair.private_key_pem : null
     }
-    source      = "scripts/iscsiattach.sh"
+    source      = "${path.module}/scripts/iscsiattach.sh"
     destination = "/home/opc/iscsiattach.sh"
   }
 
@@ -634,7 +634,7 @@ resource "null_resource" "postgresql_hotstandby1_attach_volume" {
       bastion_user        = var.create_in_private_subnet ? oci_bastion_session.ssh_postgresql_hotstandby1_session[count.index].id : null
       bastion_private_key = var.create_in_private_subnet ? tls_private_key.public_private_key_pair.private_key_pem : null
     }
-    source      = "scripts/iscsiattach.sh"
+    source      = "${path.module}/scripts/iscsiattach.sh"
     destination = "/home/opc/iscsiattach.sh"
   }
 
@@ -791,7 +791,7 @@ resource "null_resource" "postgresql_hotstandby2_attach_volume" {
       bastion_user        = var.create_in_private_subnet ? oci_bastion_session.ssh_postgresql_hotstandby2_session[count.index].id : null
       bastion_private_key = var.create_in_private_subnet ? tls_private_key.public_private_key_pair.private_key_pem : null
     }
-    source      = "scripts/iscsiattach.sh"
+    source      = "${path.module}/scripts/iscsiattach.sh"
     destination = "/home/opc/iscsiattach.sh"
   }
 

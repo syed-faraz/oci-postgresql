@@ -14,7 +14,10 @@
       - tenancy_ocid
       - region
       - release
-
+      - use_existing_vcn
+      - postgresql_vcn
+      - postgresql_subnet
+      
     - title: Required Configuration  
       variables:
       - compartment_ocid

@@ -103,7 +103,7 @@
         type: string
         visible: 
            not:
-             -create_in_private_subnet
+             - create_in_private_subnet
         required: false
         title: "Whitelisted IP"
         description: "Choose whitelisted IP in public scenario."

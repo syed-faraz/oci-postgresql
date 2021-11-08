@@ -13,8 +13,8 @@ variable "use_existing_vcn" {
   default = false
 }
 
-variables "pg_whitelisted_ip" {
-  defatul = ""
+variable "pg_whitelisted_ip" {
+  default = ""
 }
 
 variable "postgresql_vcn" {

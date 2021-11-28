@@ -7,9 +7,13 @@
     version: "20190404"
     locale: "en"
 
-    variableGroups:
-    - title: General Configuration
-      visible: false
+    # variableGroups:
+    # - title: General Configuration
+    #   visible: false
+    #   variables:
+      
+      
+    - title: Required Configuration  
       variables:
       - tenancy_ocid
       - region
@@ -17,9 +21,6 @@
       - use_existing_vcn
       - postgresql_vcn
       - postgresql_subnet
-      
-    - title: Required Configuration  
-      variables:
       - compartment_ocid
       - availablity_domain_name
       - postgresql_version
